@@ -798,6 +798,10 @@ export abstract class SchemaGenerator {
         defaultValue,
       });
       // eslint-disable-next-line no-param-reassign
+      const type = this.getGraphQLInputType(field.target, field.name, field.getType(), {
+        ...field.typeOptions,
+        defaultValue,
+      });
       args[field.schemaName] = {
         description: field.description,
         type,
