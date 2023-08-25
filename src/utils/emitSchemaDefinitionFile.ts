@@ -1,12 +1,17 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore `@graphql-tools/utils` might not be installed by user
+import { printSchemaWithDirectives } from "@graphql-tools/utils";
 import { type GraphQLSchema, lexicographicSortSchema, printSchema } from "graphql";
 import { outputFile, outputFileSync } from "@/helpers/filesystem";
 
 export interface PrintSchemaOptions {
   sortedSchema: boolean;
+  includeDirectives: boolean;
 }
 
 export const defaultPrintSchemaOptions: PrintSchemaOptions = {
   sortedSchema: true,
+  includeDirectives: false,
 };
 
 const generatedSchemaWarning = /* graphql */ `\
@@ -19,7 +24,10 @@ const generatedSchemaWarning = /* graphql */ `\
 
 function getSchemaFileContent(schema: GraphQLSchema, options: PrintSchemaOptions) {
   const schemaToEmit = options.sortedSchema ? lexicographicSortSchema(schema) : schema;
-  return generatedSchemaWarning + printSchema(schemaToEmit);
+  const printedSchema = options.includeDirectives
+    ? printSchemaWithDirectives(schemaToEmit)
+    : printSchema(schemaToEmit);
+  return generatedSchemaWarning + printedSchema;
 }
 
 export function emitSchemaDefinitionFileSync(
