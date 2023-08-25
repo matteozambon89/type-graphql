@@ -582,22 +582,23 @@ export abstract class SchemaGenerator {
   }
 
   private static buildOtherTypes(orphanedTypes: Function[]): GraphQLNamedType[] {
-    const autoRegisteredObjectTypesInfo = this.objectTypesInfo.filter(typeInfo =>
-      typeInfo.metadata.interfaceClasses?.some(interfaceClass => {
-        const implementedInterfaceInfo = this.interfaceTypesInfo.find(
-          it => it.target === interfaceClass,
-        );
-        if (!implementedInterfaceInfo) {
-          return false;
-        }
-        if (implementedInterfaceInfo.metadata.autoRegisteringDisabled) {
-          return false;
-        }
-        if (!this.usedInterfaceTypes.has(interfaceClass)) {
-          return false;
-        }
-        return true;
-      }),
+    const autoRegisteredObjectTypesInfo = this.objectTypesInfo.filter(
+      typeInfo =>
+        typeInfo.metadata.interfaceClasses?.some(interfaceClass => {
+          const implementedInterfaceInfo = this.interfaceTypesInfo.find(
+            it => it.target === interfaceClass,
+          );
+          if (!implementedInterfaceInfo) {
+            return false;
+          }
+          if (implementedInterfaceInfo.metadata.autoRegisteringDisabled) {
+            return false;
+          }
+          if (!this.usedInterfaceTypes.has(interfaceClass)) {
+            return false;
+          }
+          return true;
+        }),
     );
     return [
       ...this.filterTypesInfoByOrphanedTypesAndExtractType(this.objectTypesInfo, orphanedTypes),
@@ -753,10 +754,6 @@ export abstract class SchemaGenerator {
         defaultValue,
       });
       // eslint-disable-next-line no-param-reassign
-      const type = this.getGraphQLInputType(field.target, field.name, field.getType(), {
-        ...field.typeOptions,
-        defaultValue,
-      });
       args[field.schemaName] = {
         description: field.description,
         type,

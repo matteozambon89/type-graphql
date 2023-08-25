@@ -96,11 +96,15 @@
     "prepare": "npx ts-patch install -s && npx husky install"
   },
   "peerDependencies": {
+    "@graphql-tools/utils": ">=10.0.4",
     "class-validator": ">=0.14.0",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.2"
   },
   "peerDependenciesMeta": {
+    "@graphql-tools/utils": {
+      "optional": true
+    },
     "class-validator": {
       "optional": true
     }

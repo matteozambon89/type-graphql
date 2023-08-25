@@ -5,6 +5,7 @@ import path from "node:path";
 import { type GraphQLSchema } from "graphql";
 import shelljs from "shelljs";
 import {
+  Directive,
   Field,
   ObjectType,
   type PrintSchemaOptions,
@@ -27,6 +28,7 @@ describe("Emitting schema definition file", () => {
   beforeAll(async () => {
     @ObjectType()
     class MyObject {
+      @Directive("@test")
       @Field()
       normalProperty!: string;
 
@@ -56,7 +58,7 @@ describe("Emitting schema definition file", () => {
 
   function checkSchemaSDL(
     SDL: string,
-    { sortedSchema }: PrintSchemaOptions = defaultPrintSchemaOptions,
+    { sortedSchema, includeDirectives }: PrintSchemaOptions = defaultPrintSchemaOptions,
   ) {
     expect(SDL).toContain("THIS FILE WAS GENERATED");
     expect(SDL).toContain("MyObject");
@@ -64,6 +66,9 @@ describe("Emitting schema definition file", () => {
       expect(SDL.indexOf("descriptionProperty")).toBeLessThan(SDL.indexOf("normalProperty"));
     } else {
       expect(SDL.indexOf("descriptionProperty")).toBeGreaterThan(SDL.indexOf("normalProperty"));
+    }
+    if (includeDirectives) {
+      expect(SDL.indexOf("@test")).toBeGreaterThanOrEqual(0);
     }
     expect(SDL).toContain(`"""Description test"""`);
   }
@@ -80,6 +85,7 @@ describe("Emitting schema definition file", () => {
       const targetPath = path.join(TEST_DIR, "schemas", "test1", "schema.graphql");
       const options: PrintSchemaOptions = {
         sortedSchema: false,
+        includeDirectives: true,
       };
       await emitSchemaDefinitionFile(targetPath, schema, options);
       expect(fs.existsSync(targetPath)).toEqual(true);
@@ -125,6 +131,7 @@ describe("Emitting schema definition file", () => {
       const targetPath = path.join(TEST_DIR, "schemas", "test1", "schema.graphql");
       const options: PrintSchemaOptions = {
         sortedSchema: false,
+        includeDirectives: true,
       };
       emitSchemaDefinitionFileSync(targetPath, schema, options);
       expect(fs.existsSync(targetPath)).toEqual(true);
@@ -188,6 +195,7 @@ describe("Emitting schema definition file", () => {
       expect(fs.existsSync(targetPath)).toEqual(true);
       checkSchemaSDL(fs.readFileSync(targetPath).toString(), {
         sortedSchema: false,
+        includeDirectives: false,
       });
     });
 
@@ -234,11 +242,13 @@ describe("Emitting schema definition file", () => {
         emitSchemaFile: {
           path: targetPath,
           sortedSchema: false,
+          includeDirectives: true,
         },
       });
       expect(fs.existsSync(targetPath)).toEqual(true);
       checkSchemaSDL(fs.readFileSync(targetPath).toString(), {
         sortedSchema: false,
+        includeDirectives: true,
       });
     });
 

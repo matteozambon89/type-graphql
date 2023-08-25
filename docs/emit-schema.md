@@ -17,6 +17,7 @@ const schema = await buildSchema({
   emitSchemaFile: {
     path: __dirname + "/schema.graphql",
     sortedSchema: false, // By default the printed schema is sorted alphabetically
+    includeDirectives: true, // By default the directives are not included in the printed schema. To enable this ensure to add @graphql-tools/utils to your dependencies tree
   },
 });
 ```
