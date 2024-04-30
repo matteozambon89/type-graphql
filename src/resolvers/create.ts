@@ -93,7 +93,7 @@ export function createAdvancedFieldResolver(
 
   return (root, args, context, info) => {
     const resolverData: ResolverData<any> = { root, args, context, info };
-    const targetInstance: any = convertToType(targetType, root);
+    const targetInstance: any = convertToType(targetType, root, container, resolverData);
     return applyMiddlewares(container, resolverData, middlewares, () => {
       const handlerOrGetterValue = targetInstance[fieldResolverMetadata.methodName];
       if (typeof handlerOrGetterValue !== "function") {

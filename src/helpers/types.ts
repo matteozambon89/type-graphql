@@ -11,6 +11,8 @@ import { type TypeOptions } from "@/decorators/types";
 import { WrongNullableListOptionError } from "@/errors";
 import { GraphQLISODateTime } from "@/scalars";
 import { BuildContext } from "@/schema/build-context";
+import { type ResolverData } from "@/typings";
+import { type IOCContainer } from "@/utils/container";
 
 function wrapTypeInNestedList(
   targetType: GraphQLType,
@@ -84,7 +86,7 @@ export function wrapWithTypeOptions<T extends GraphQLType>(
 }
 
 const simpleTypes: Function[] = [String, Boolean, Number, Date, Array, Promise];
-export function convertToType(Target: any, data?: object): object | undefined {
+export function convertToType(Target: any, data?: object, container?: IOCContainer, resolverData?:ResolverData<any>): object | undefined {
   // skip converting undefined and null
   if (data == null) {
     return data;
@@ -103,10 +105,17 @@ export function convertToType(Target: any, data?: object): object | undefined {
   }
   // convert array to instances
   if (Array.isArray(data)) {
-    return data.map(item => convertToType(Target, item));
+    return data.map(item => convertToType(Target, item, container, resolverData));
   }
 
-  return Object.assign(new Target(), data);
+  let instance: any;
+  if (container && resolverData) {
+    instance = container.getInstance(Target, resolverData);
+  } else {
+    instance = new Target();
+  }
+    
+  return Object.assign(instance, data);
 }
 
 export function getEnumValuesMap<T extends object>(enumObject: T) {
