@@ -86,7 +86,12 @@ export function wrapWithTypeOptions<T extends GraphQLType>(
 }
 
 const simpleTypes: Function[] = [String, Boolean, Number, Date, Array, Promise];
-export function convertToType(Target: any, data?: object, container?: IOCContainer, resolverData?:ResolverData<any>): object | undefined {
+export function convertToType(
+  Target: any,
+  data?: object,
+  container?: IOCContainer,
+  resolverData?: ResolverData<any>,
+): object | undefined {
   // skip converting undefined and null
   if (data == null) {
     return data;
@@ -109,12 +114,21 @@ export function convertToType(Target: any, data?: object, container?: IOCContain
   }
 
   let instance: any;
+
+  // attempt to load from the container
   if (container && resolverData) {
-    instance = container.getInstance(Target, resolverData);
-  } else {
+    try {
+      instance = container.getInstance(Target, resolverData);
+    } catch (e) {
+      // ignore error, the Target is not in the container
+    }
+  }
+
+  // create new instance if not found in the container
+  if (!instance) {
     instance = new Target();
   }
-    
+
   return Object.assign(instance, data);
 }
 
